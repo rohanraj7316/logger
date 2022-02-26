@@ -2,6 +2,8 @@ package logger
 
 import (
 	"fmt"
+	"io"
+	"os"
 )
 
 const (
@@ -44,15 +46,38 @@ type Options struct {
 	// stack will hold on to the logger even though it gets closed. This causes data races.
 	LogGrpc bool
 
+	// Output is a writer where logs are written
+	//
+	// Default: os.Stdout
+	Output io.Writer
+
+	// ErrOutput is a writer where logs are written
+	//
+	// Default: os.Stderr
+	ErrOutput       io.Writer
 	stackTraceLevel string
 	outputLevel     string
 }
 
 // NewOptions returns a new set of options, initialized to the defaults
+// Deprecated will be removed in next publish
 func NewOptions() *Options {
 	return &Options{
 		outputLevel:     string(defaultOutputLevel),
 		stackTraceLevel: string(defaultStackTraceLevel),
+		Output:          os.Stdout,
+		ErrOutput:       os.Stderr,
+		LogGrpc:         true,
+	}
+}
+
+// DefaultOptions returns a new set of options, initialized to the defaults
+func DefaultOptions() *Options {
+	return &Options{
+		outputLevel:     string(defaultOutputLevel),
+		stackTraceLevel: string(defaultStackTraceLevel),
+		Output:          os.Stdout,
+		ErrOutput:       os.Stderr,
 		LogGrpc:         true,
 	}
 }

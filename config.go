@@ -1,8 +1,6 @@
 package logger
 
 import (
-	"os"
-
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"go.uber.org/zap/zapgrpc"
@@ -38,12 +36,12 @@ func Configure(options *Options) error {
 	}
 
 	encCfg := zapcore.EncoderConfig{
-		TimeKey:        "time",
-		LevelKey:       "level",
-		NameKey:        "logger",
-		CallerKey:      "caller",
-		MessageKey:     "message",
-		StacktraceKey:  "stack",
+		TimeKey:  "time",
+		LevelKey: "level",
+		// NameKey:        "logger",
+		CallerKey:  "caller",
+		MessageKey: "message",
+		// StacktraceKey:  "stack",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.LowercaseLevelEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
@@ -54,7 +52,7 @@ func Configure(options *Options) error {
 	enc := zapcore.NewJSONEncoder(encCfg)
 
 	opts := []zap.Option{
-		zap.ErrorOutput(zapcore.AddSync(os.Stderr)),
+		zap.ErrorOutput(zapcore.AddSync(options.ErrOutput)),
 	}
 
 	if options.IncludeCallerSourceLocation {
@@ -66,7 +64,7 @@ func Configure(options *Options) error {
 	}
 
 	l := zap.New(
-		zapcore.NewCore(enc, zapcore.AddSync(os.Stdout), zap.NewAtomicLevelAt(levelToZap[outputLevel])),
+		zapcore.NewCore(enc, zapcore.AddSync(options.Output), zap.NewAtomicLevelAt(levelToZap[outputLevel])),
 		opts...,
 	)
 
@@ -81,7 +79,7 @@ func Configure(options *Options) error {
 
 	// capture gRPC logging
 	if options.LogGrpc {
-		grpclog.SetLogger(zapgrpc.NewLogger(logger.WithOptions(zap.AddCallerSkip(2))))
+		grpclog.SetLoggerV2(zapgrpc.NewLogger(logger.WithOptions(zap.AddCallerSkip(2))))
 	}
 
 	return nil
