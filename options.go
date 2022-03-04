@@ -32,6 +32,14 @@ const (
 	NoneLevel Level = "none"
 )
 
+type EncoderConfig struct {
+	// Path is array consists of all the json path.
+	Path []string
+
+	// EncoderFunc function which helps in encoding the string.
+	EncoderFunc func(string) string
+}
+
 // Options defines the set of options supported by Istio's component logging package.
 type Options struct {
 
@@ -54,13 +62,23 @@ type Options struct {
 	// ErrOutput is a writer where logs are written
 	//
 	// Default: os.Stderr
-	ErrOutput       io.Writer
+	ErrOutput io.Writer
+
+	// IsEncoding enables encoding in logging
+	//
+	// Default: false
+	IsEncoding bool
+
+	// EncoderConfig has encoder config which helps in encoding
+	EncoderConfig EncoderConfig
+
 	stackTraceLevel string
 	outputLevel     string
 }
 
 // NewOptions returns a new set of options, initialized to the defaults
-// Deprecated will be removed in next publish
+//
+// Deprecated:  use DefaultOptions insted
 func NewOptions() *Options {
 	return &Options{
 		outputLevel:     string(defaultOutputLevel),
