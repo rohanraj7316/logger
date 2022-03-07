@@ -36,12 +36,10 @@ func Configure(options *Options) error {
 	}
 
 	encCfg := zapcore.EncoderConfig{
-		TimeKey:  "time",
-		LevelKey: "level",
-		// NameKey:        "logger",
-		CallerKey:  "caller",
-		MessageKey: "message",
-		// StacktraceKey:  "stack",
+		TimeKey:        "time",
+		LevelKey:       "level",
+		CallerKey:      "caller",
+		MessageKey:     "message",
 		LineEnding:     zapcore.DefaultLineEnding,
 		EncodeLevel:    zapcore.LowercaseLevelEncoder,
 		EncodeCaller:   zapcore.ShortCallerEncoder,
