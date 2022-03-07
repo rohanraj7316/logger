@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"encoding/json"
 	"time"
 
 	"go.uber.org/zap"
@@ -13,7 +14,54 @@ var sugar = logger.Sugar()
 
 type Field struct {
 	Key   string
-	Value string
+	Value interface{}
+}
+
+func parse(fields ...Field) []zapcore.Field {
+	pFields := []zapcore.Field{}
+	for i := 0; i < len(fields); i++ {
+		key := fields[i].Key
+		value := fields[i].Value
+
+		switch t := value.(type) {
+		case string:
+			pFields = append(pFields, zapcore.Field{
+				Key:    key,
+				String: t,
+				Type:   zapcore.StringType,
+			})
+		case []byte:
+			pFields = append(pFields, zapcore.Field{
+				Key:    key,
+				String: string(t),
+				Type:   zapcore.StringType,
+			})
+		case interface{}:
+			b, err := json.Marshal(t)
+			if err != nil {
+				eStruct := map[string]interface{}{
+					"err": err.Error(),
+					"msg": "unable to parse",
+				}
+
+				eB, _ := json.Marshal(eStruct)
+
+				pFields = append(pFields, zapcore.Field{
+					Key:    key,
+					String: string(eB),
+					Type:   zapcore.StringType,
+				})
+				continue
+			}
+			pFields = append(pFields, zapcore.Field{
+				Key:    key,
+				String: string(b),
+				Type:   zapcore.StringType,
+			})
+		}
+	}
+
+	return pFields
 }
 
 func formatDate(t time.Time, enc zapcore.PrimitiveArrayEncoder) {
@@ -64,43 +112,19 @@ func Debug(args ...interface{}) {
 // Error outputs a message at error level.
 // This call is a wrapper around [logger.Error](https://godoc.org/go.uber.org/zap#logger.Error)
 func Error(msg string, fields ...Field) {
-	zFields := []zapcore.Field{}
-	for i := 0; i < len(fields); i++ {
-		zFields = append(zFields, zapcore.Field{
-			Key:    fields[i].Key,
-			String: fields[i].Value,
-			Type:   zapcore.StringType,
-		})
-	}
-	logger.Error(msg, zFields...)
+	logger.Error(msg, parse(fields...)...)
 }
 
 // Warn outputs a message at warn level.
 // This call is a wrapper around [logger.Warn](https://godoc.org/go.uber.org/zap#logger.Warn)
 func Warn(msg string, fields ...Field) {
-	zFields := []zapcore.Field{}
-	for i := 0; i < len(fields); i++ {
-		zFields = append(zFields, zapcore.Field{
-			Key:    fields[i].Key,
-			String: fields[i].Value,
-			Type:   zapcore.StringType,
-		})
-	}
-	logger.Warn(msg, zFields...)
+	logger.Warn(msg, parse(fields...)...)
 }
 
 // Info outputs a message at information level.
 // This call is a wrapper around [logger.Info](https://godoc.org/go.uber.org/zap#logger.Info)
 func Info(msg string, fields ...Field) {
-	zFields := []zapcore.Field{}
-	for i := 0; i < len(fields); i++ {
-		zFields = append(zFields, zapcore.Field{
-			Key:    fields[i].Key,
-			String: fields[i].Value,
-			Type:   zapcore.StringType,
-		})
-	}
-	logger.Info(msg, zFields...)
+	logger.Info(msg, parse(fields...)...)
 }
 
 // With creates a child logger and adds structured context to it. Fields added

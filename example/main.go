@@ -32,15 +32,36 @@ func main() {
 	err := logger.Configure(lOptions)
 	checkErr(err)
 
-	// testing string
+	// Type: number
 	f := logger.Field{
+		Key:   "number",
+		Value: 2,
+	}
+	logger.Info("number", f)
+
+	// Type: bool
+	f = logger.Field{
+		Key:   "bool",
+		Value: true,
+	}
+	logger.Info("bool", f)
+
+	// Type: nil
+	f = logger.Field{
+		Key:   "nil",
+		Value: nil,
+	}
+	logger.Info("nil", f)
+
+	// Type: string
+	f = logger.Field{
 		Key:   "string",
 		Value: "test string",
 	}
-	logger.Error("testing string", f)
+	logger.Info("string", f)
 
-	// testring json
-	j := JsonTest{
+	// Type: struct
+	s := JsonTest{
 		StatusCode: "httpOK",
 		Code:       200,
 		Message:    "testing encryption",
@@ -51,12 +72,37 @@ func main() {
 			},
 		},
 	}
-	fb, err := json.Marshal(&j)
-	if !checkErr(err) {
-		f := logger.Field{
-			Key:   "json",
-			Value: string(fb),
-		}
-		logger.Info("testing json", f)
+	f = logger.Field{
+		Key:   "struct",
+		Value: s,
 	}
+	logger.Error("struct", f)
+
+	// Type: []byte
+	fb, err := json.Marshal(&s)
+	if !checkErr(err) {
+		f = logger.Field{
+			Key:   "[]byte",
+			Value: fb,
+		}
+		logger.Error("[]byte", f)
+	}
+
+	// Type: map[string]interface{}
+	mI := map[string]interface{}{
+		"status":     "200",
+		"statusCode": "httpOK",
+		"message":    "testing encryption",
+		"data": []map[string]interface{}{
+			{
+				"name": "Unio",
+				"age":  76,
+			},
+		},
+	}
+	f = logger.Field{
+		Key:   "map[string]interface",
+		Value: mI,
+	}
+	logger.Error("struct", f)
 }
