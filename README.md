@@ -4,11 +4,13 @@ this is just a wrapper on [zap](https://github.com/uber-go/zap)
 
 ## Integration
 
-either you can import default config and edit it out according to your needs or you can use `Option` struct to create your own config. for example:
+either you can import default config and edit it out according to your needs or you can use `Config` struct to create your own config. for example:
 
 - importing default config and then edit out the values according to your needs
 ```
-lOptions := logger.DefaultOptions()
+lOptions := logger.ConfigDefault
+
+// edit it according to your needs
 ```
 
 - creating your own config
