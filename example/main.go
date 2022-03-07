@@ -28,8 +28,7 @@ func checkErr(err error) bool {
 }
 
 func main() {
-	lOptions := logger.DefaultOptions()
-	err := logger.Configure(lOptions)
+	err := logger.Configure()
 	checkErr(err)
 
 	// Type: number
